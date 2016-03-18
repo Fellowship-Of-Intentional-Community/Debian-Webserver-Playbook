@@ -52,4 +52,3 @@
         option: bind-address,
         value: 127.0.0.1 }
   become: yes
-

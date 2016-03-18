@@ -11,3 +11,10 @@ ssh_keys:
 fail2ban_whitelist:
   - '127.0.0.1/8'
   - '104.245.228.18'
+
+website_hostname: "ic.org"
+production_servername: "webvps"
+staging_servername: "staging"
+
+nginx_http_port: 80
+nginx_https_port: 443

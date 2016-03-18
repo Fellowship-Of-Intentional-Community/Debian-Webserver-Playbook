@@ -1,0 +1,44 @@
+---
+
+- name: Ensure Nginx is Installed
+  apt: name=nginx-extras
+  become: yes
+
+- name: Ensure Nginx Is Correctly Configured
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf backup=yes
+  notify: restart nginx
+  become: yes
+
+- name: Ensure the Nginx staging & production Sites are Correctly Configured
+  template: src="{{ item.template }}.nginx.conf.j2" backup=yes
+            dest="/etc/nginx/sites-available/{{ item.sitename }}.conf"
+  with_items:
+    - { template: 'staging',
+        sitename: '{{ staging_servername }}.{{ website_hostname }}' }
+    - { template: 'production',
+        sitename: 'default' }
+  notify: restart nginx
+  become: yes
+
+- name: Ensure the Nginx staging & production Sites are Enabled
+  file: state=link path="/etc/nginx/sites-enabled/{{ item }}" force=yes
+        src="/etc/nginx/sites-available/{{ item }}"
+  with_items: ['{{ staging_servername }}.{{ website_hostname }}', 'default']
+  notify: restart nginx
+  become: yes
+
+- name: Ensure the Directories Required by Nginx Exist
+  file: state=directory path="{{ item }}"
+  with_items:
+    - /var/www/html
+    - /var/www/logs
+    - /var/www/staging/html
+    - /var/www/staging/logs
+  notify: restart nginx
+  become: yes
+
+- name: Ensure the Website Directories Have the Correct Permissions
+  file: state=directory owner=www-data group=www-data path="/var/www/{{ item }}"
+  with_items: ['html', 'staging/html']
+  notify: restart nginx
+  become: yes

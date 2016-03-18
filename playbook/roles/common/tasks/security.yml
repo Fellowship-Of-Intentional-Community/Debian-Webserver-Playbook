@@ -91,6 +91,6 @@
   service: name=netfilter-persistent enabled=yes state=started
   become: yes
 - name: Ensure iptables-persistent is Correctly Configured
-  template: src=iptables.j2 dest=/etc/iptables/rules.v4
+  template: src=iptables.j2 dest=/etc/iptables/rules.v4 backup=yes
   notify: restart iptables-persistent
   become: yes

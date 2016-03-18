@@ -15,3 +15,7 @@
 - name: Ensure MySQL is Correctly Configured
   include: mysql.yml
   tags: mysql
+
+- name: Ensure Nginx is Correctly Configured
+  include: nginx.yml
+  tags: nginx

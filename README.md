@@ -62,6 +62,10 @@ Upgrades, SSH Hardening, Fail2Ban, & an IPTables ruleset.
 We then install MariaDB and create databases and users for `production` &
 `staging`. MariaDB is then secured using [Digital Ocean's Guide][d-o-mysql].
 
+Nginx is then installed & configured using [Linode's LEMP Server
+Guide][linode-lemp]. Production & Staging sites proxying PHP-FPM are added to
+Nginx.
+
 
 
 [ansible]: https://www.ansible.com/
@@ -70,3 +74,4 @@ We then install MariaDB and create databases and users for `production` &
 [linode-starting]: https://www.linode.com/docs/getting-started
 [linode-secure]: https://www.linode.com/docs/security/securing-your-server/
 [d-o-mysql]: https://www.digitalocean.com/community/tutorials/how-to-secure-mysql-and-mariadb-databases-in-a-linux-vps
+[linode-lemp]: https://www.linode.com/docs/websites/lemp/lemp-server-on-debian-8
