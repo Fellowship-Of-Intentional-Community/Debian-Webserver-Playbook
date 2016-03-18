@@ -41,6 +41,7 @@ Now you can run the ansible playbook. You can specify a different inventory
 file using the `-i` flag:
 
 ```bash
+cd playbook/
 # To the production server
 ansible-playbook fic.yml
 # Or to your test server
