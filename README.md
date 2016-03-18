@@ -32,8 +32,13 @@ Now you can either add the IP address to the `fic-servers` inventory file &
 create a new file in the `host_vars` directory or you can just modify the IP &
 host variables for the `fic-test` host.
 
-Run the ansible playbook. You can change the inventory file by using the `-i`
-flag:
+Passwords and other secrets are stored in an Ansbile Vault file. You'll need to
+stick the password in `playbook/pass.secret`. You can edit or view password by
+running `ansible-vault edit group_vars/all/vault.yml`. If you're forking or
+re-using this playbook, you should replace our vault file with your own.
+
+Now you can run the ansible playbook. You can specify a different inventory
+file using the `-i` flag:
 
 ```bash
 # To the production server
@@ -50,8 +55,8 @@ Started Guide][linode-starting], like fixing the hostname, the hosts file, &
 the timezone.
 
 Then an administration user is created, and the security configuration from
-[Linode's Security Guide][linode-secure] is applied, including SSH Hardening,
-Fail2Ban, & an IPTables ruleset.
+[Linode's Security Guide][linode-secure] is applied, including Unattended
+Upgrades, SSH Hardening, Fail2Ban, & an IPTables ruleset.
 
 
 
