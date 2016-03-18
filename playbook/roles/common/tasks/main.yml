@@ -1,0 +1,13 @@
+---
+
+- name: Ensure the Basic Server Configuration is Correct
+  include: setup.yml
+  tags: setup
+
+- name: Ensure the Default User is Properly Configured
+  include: user.yml
+  tags: user
+
+- name: Ensure the Server is Properly Secured
+  include: security.yml
+  tags: security

@@ -1,0 +1,96 @@
+---
+
+# Server Security - https://www.linode.com/docs/security/securing-your-server
+
+# https://wiki.debian.org/UnattendedUpgrades
+- name: Ensure Unattended Upgrades is Installed
+  apt: name="{{ item }}"
+  with_items:
+    - unattended-upgrades
+    - apt-listchanges
+  become: yes
+- name: Ensure the Unattended Upgrades Service is Enabled
+  service: name=unattended-upgrades enabled=yes
+  become: yes
+- name: Ensure Unattended Upgrades is Correctly Configured
+  lineinfile: dest=/etc/apt/apt.conf.d/50unattended-upgrades backup=yes
+              regexp=".*Upgrade::Mail .*;" line='Unattended-Upgrade::Mail "root";'
+  become: yes
+- name: Ensure the Unattended Upgrades Apt Stub is Correctly Configured
+  lineinfile: dest=/etc/apt/apt.conf.d/20auto-upgrades backup=yes create=yes
+              regexp="{{ item.exp }}" line="{{ item.line }}"
+  with_items:
+    - { exp: '.*Update-Package-Lists .*;',
+        line: 'APT::Periodic::Update-Package-Lists "1";' }
+    - { exp: '.*Unattended-Upgrade .*;',
+        line: 'APT::Periodic::Unattended-Upgrade "1";' }
+  become: yes
+- name: Ensure Apt's List-Changes Utility is Correctly Configured
+  lineinfile: dest=/etc/apt/listchanges.conf backup=yes
+              regexp=".*which=.*" line="which=both"
+  become: yes
+
+
+- name: Ensure SSH Access is Hardened
+  lineinfile: dest=/etc/ssh/sshd_config backup=yes
+              regexp="{{ item.exp }}" line="{{ item.line }}"
+  with_items:
+    - { exp: '^#?Port .*', line: 'Port {{ ssh_port }}' }
+    - { exp: '^#?PermitRootLogin .*', line: 'PermitRootLogin no' }
+    - { exp: '^#?PasswordAuthentication .*', line: 'PasswordAuthentication no' }
+    - { exp: '^#?AddressFamily .*', line: 'AddressFamily inet' }
+  notify: restart sshd
+  become: yes
+
+
+# https://www.linode.com/docs/security/using-fail2ban-for-security
+- name: Ensure Fail2Ban is Installed
+  apt: name="fail2ban"
+  become: yes
+- name: Ensure Fail2Ban is Enabled
+  service: name=fail2ban enabled=yes
+  become: yes
+- name: Initialize the Fail2Ban Configuration File if None Exists
+  command: cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+           creates=/etc/fail2ban/jail.local
+  notify: restart fail2ban
+  become: yes
+- name: Ensure Fail2Ban is Correctly Configured
+  ini_file: dest=/etc/fail2ban/jail.local backup=yes section="{{ item.section }}"
+            option="{{ item.option }}" value="{{ item.value }}"
+  with_items:
+    - { section: 'DEFAULT',
+        option:  'bantime',
+        value:   '86400' }
+    - { section: 'DEFAULT',
+        option:  'maxretry',
+        value:   '10' }
+    - { section: 'DEFAULT',
+        option:  'findtime',
+        value:   '3600' }
+    - { section: 'DEFAULT',
+        option:  'ignoreip',
+        value:   '{{ fail2ban_whitelist|join(" ") }}' }
+    - { section: 'ssh',
+        option:  'port',
+        value:   '{{ ssh_port }}' }
+    - { section: 'ssh-ddos',
+        option:  'enabled',
+        value:   'true' }
+    - { section: 'ssh-ddos',
+        option:  'port',
+        value:   '{{ ssh_port }}' }
+  notify: restart fail2ban
+  become: yes
+
+
+- name: Ensure iptables-persistent is Installed
+  apt: name=iptables-persistent
+  become: yes
+- name: Ensure iptables-persistent is Enabled
+  service: name=netfilter-persistent enabled=yes state=started
+  become: yes
+- name: Ensure iptables-persistent is Correctly Configured
+  template: src=iptables.j2 dest=/etc/iptables/rules.v4
+  notify: restart iptables-persistent
+  become: yes

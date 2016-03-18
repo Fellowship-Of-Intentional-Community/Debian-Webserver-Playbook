@@ -1,0 +1,25 @@
+---
+
+# Basic Server Setup - https://www.linode.com/docs/getting-started
+- name: Ensure Package Cache is Current
+  apt: update_cache=yes cache_valid_time=3600
+  become: yes
+
+- name: Ensure Latest Packages are Installed
+  apt: upgrade=safe
+  become: yes
+
+- name: Ensure the Hostname is Correctly Set
+  copy: dest=/etc/hostname content="{{ ansible_hostname }}"
+        owner=root group=root mode=0644 backup=yes
+  become: yes
+
+- name: Ensure the Public IP is Correctly Routed
+  lineinfile: dest=/etc/hosts regexp=".*{{ ansible_hostname }}"
+              line="{{ public_ip }}  {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
+  become: yes
+
+- name: Ensure the Timezone is Correctly Set
+  copy: dest=/etc/timezone content="{{ timezone }}"
+        owner=root group=root mode=0644 backup=yes
+  become: yes

@@ -25,19 +25,38 @@ mkvirtualenv -a "$(pwd)" -i fabric -i ansible fic-vps
 
 ## Automated Setup
 
-Spin up a VM and install Debian 8 with just a basic SSH server. Take note of
-the IP.
+Spin up a VM and install Debian 8 with just a SSH server, `python`, and
+`aptitude`.
 
-Run the ansible playbook. Specify you're VMs IP using the `-i` flag:
+Now you can either add the IP address to the `fic-servers` inventory file &
+create a new file in the `host_vars` directory or you can just modify the IP &
+host variables for the `fic-test` host.
+
+Run the ansible playbook. You can change the inventory file by using the `-i`
+flag:
 
 ```bash
 # To the production server
 ansible-playbook fic.yml
 # Or to your test server
-ansible-playbook fic.yml -i <server_ip>
+ansible-playbook fic.yml -i test-servers
 ```
+
+
+## Playbook
+
+The playbook does some initial configuration specified by [Linode's Getting
+Started Guide][linode-starting], like fixing the hostname, the hosts file, &
+the timezone.
+
+Then an administration user is created, and the security configuration from
+[Linode's Security Guide][linode-secure] is applied, including SSH Hardening,
+Fail2Ban, & an IPTables ruleset.
 
 
 
 [ansible]: https://www.ansible.com/
 [fabric]: http://www.fabfile.org/
+
+[linode-starting]: https://www.linode.com/docs/getting-started
+[linode-secure]: https://www.linode.com/docs/security/securing-your-server/

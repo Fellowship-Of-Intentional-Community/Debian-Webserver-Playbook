@@ -1,0 +1,13 @@
+---
+
+- name: restart sshd
+  service: name=sshd state=restarted
+  become: yes
+
+- name: restart fail2ban
+  service: name=fail2ban state=restarted
+  become: yes
+
+- name: restart iptables-persistent
+  service: name=netfilter-persistent state=restarted
+  become: yes

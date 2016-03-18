@@ -1,0 +1,20 @@
+---
+
+- name: Ensure User Utilities are Installed
+  apt: name="{{ item }}"
+  become: yes
+  with_items:
+    - git
+    - htop
+    - sudo
+    - vim
+    - zsh
+
+- name: Ensure the Default User Account is Correctly Configured
+  user: name="{{ default_user }}" append=yes groups=sudo shell=/bin/zsh
+  become: yes
+
+- name: Ensure the Default User has Authorized the Expected SSH Keys
+  authorized_key: user="{{ default_user }}" key="{{ item }}"
+  with_items: "{{ ssh_keys }}"
+  become: yes
