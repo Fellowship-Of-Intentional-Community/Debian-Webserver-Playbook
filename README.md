@@ -58,6 +58,9 @@ Then an administration user is created, and the security configuration from
 [Linode's Security Guide][linode-secure] is applied, including Unattended
 Upgrades, SSH Hardening, Fail2Ban, & an IPTables ruleset.
 
+We then install MariaDB and create databases and users for `production` &
+`staging`. MariaDB is then secured using [Digital Ocean's Guide][d-o-mysql].
+
 
 
 [ansible]: https://www.ansible.com/
@@ -65,3 +68,4 @@ Upgrades, SSH Hardening, Fail2Ban, & an IPTables ruleset.
 
 [linode-starting]: https://www.linode.com/docs/getting-started
 [linode-secure]: https://www.linode.com/docs/security/securing-your-server/
+[d-o-mysql]: https://www.digitalocean.com/community/tutorials/how-to-secure-mysql-and-mariadb-databases-in-a-linux-vps

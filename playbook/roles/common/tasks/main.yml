@@ -11,3 +11,7 @@
 - name: Ensure the Server is Properly Secured
   include: security.yml
   tags: security
+
+- name: Ensure MySQL is Correctly Configured
+  include: mysql.yml
+  tags: mysql
