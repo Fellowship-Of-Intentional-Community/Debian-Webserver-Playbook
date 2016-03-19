@@ -1,5 +1,6 @@
 ---
 
+debian_version: 'jessie'
 timezone: 'America/New_York'
 
 default_user: 'prikhi'
@@ -21,8 +22,8 @@ nginx_https_port: 443
 
 adminer_subdomain: "adminer"
 adminer_version: "4.2.4"
-adminer_checksum: "sha256:bbe24e287f42cb3d1f272ebd890a8a4f81e4e675f88f726ae5f80347181e3fd6"
 adminer_theme: "nette"
+adminer_checksum: "sha256:bbe24e287f42cb3d1f272ebd890a8a4f81e4e675f88f726ae5f80347181e3fd6"
 adminer_theme_checksum: "sha256:632965d2ca4440d73a27c47ac208da30e57ac018395411bcdd8528d108a56f2a"
 
 php_max_execution_time: 300
@@ -31,3 +32,16 @@ php_max_input_vars: 5000
 php_max_children: 16
 php_max_request_per_child: 1024
 php_request_terminate_timeout: '300s'
+
+varnish_port: 80
+varnish_repo_version: '4.1'
+varnish_file_limit: 131072
+varnish_mem_limit: 82000
+varnish_min_threads: 100
+varnish_max_threads: 5000
+varnish_thread_timeout: 120
+varnish_storage_size: '1G'
+varnish_storage_backend: 'malloc'
+varnish_ttl: 120
+varnish_connection_timeout: '600s'
+varnish_max_connections: 800

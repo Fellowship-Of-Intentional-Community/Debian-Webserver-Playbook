@@ -1,0 +1,35 @@
+---
+
+- name: Ensure the Apt HTTPS Transport Plugin is Installed
+  apt: name=apt-transport-https
+  become: yes
+
+- name: Ensure the Varnish Apt GPG Key is Installed
+  apt_key: url=https://repo.varnish-cache.org/GPG-key.txt
+  become: yes
+
+- name: Ensure the Varnish Apt Repository is Enabled
+  apt_repository: repo='deb https://repo.varnish-cache.org/debian/ {{ debian_version }} varnish-{{ varnish_repo_version }}'
+  become: yes
+
+- name: Ensure Varnish is Installed
+  apt: name="{{ item }}"
+  with_items: ['varnish', 'libvarnish-dev']
+  become: yes
+
+- name: Ensure Varnish is Enabled
+  service: name="{{ item }}" enabled=yes
+  with_items: ['varnish', 'varnishlog', 'varnishncsa']
+  become: yes
+
+- name: Ensure the Varnish Service File is Correct
+  template: src="{{ item.template }}.j2" dest="{{ item.dest }}"
+            backup=yes
+  with_items:
+    - { template: varnish.service, dest: /etc/systemd/system/varnish.service }
+    - { template: varnish.defaults, dest: /etc/default/varnish }
+    - { template: varnish.vcl, dest: /etc/varnish/default.vcl }
+  notify:
+    - reload systemd
+    - restart varnish
+  become: yes

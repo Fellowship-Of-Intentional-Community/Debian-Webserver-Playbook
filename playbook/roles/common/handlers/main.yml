@@ -15,3 +15,12 @@
 - name: restart php-fpm
   service: name=php5-fpm state=restarted
   become: yes
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  become: yes
+
+- name: restart varnish
+  service: name="{{ item }}" state=restarted
+  with_items: ['varnish', 'varnishlog', 'varnishncsa']
+  become: yes

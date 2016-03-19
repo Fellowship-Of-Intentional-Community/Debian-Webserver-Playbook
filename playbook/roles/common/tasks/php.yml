@@ -2,7 +2,7 @@
 
 - name: Ensure PHP-FPM is Installed
   apt: name="{{ item }}"
-  with_items: 
+  with_items:
     - 'php5-fpm'
     - 'php5-mysql'
     - 'php5-gd'

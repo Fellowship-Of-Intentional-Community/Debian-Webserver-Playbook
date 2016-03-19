@@ -1,0 +1,28 @@
+# Configuration file for varnish
+#
+# NOTE: This file is used as an EnvironmentFile by
+# /etc/systemd/system/varnish.service - which means Variable Expansion DOES
+# NOT WORK!
+
+# Should we start varnishd at boot?  Set to "no" to disable.
+START=yes
+
+# Maximum number of open files (for ulimit -n)
+NFILES={{ varnish_file_limit }}
+
+# Maximum locked memory size (for ulimit -l)
+# Used for locking the shared memory log in memory.  If you increase log size,
+# you need to increase this number as well
+MEMLOCK={{ varnish_mem_limit }}
+
+# DAEMON_OPTS is used by the init script.  If you add or remove options, make
+# sure you update this section, too.
+DAEMON_OPTS="-a {{ public_ip }}:{{ varnish_port }} \
+             -f /etc/varnish/default.vcl \
+             -T 127.0.0.1:6082 \
+             -t {{ varnish_ttl }} \
+             -p thread_pool_min={{ varnish_min_threads }} \
+             -p thread_pool_max={{ varnish_max_threads }} \
+             -p thread_pool_timeout={{ varnish_thread_timeout }} \
+             -S /etc/varnish/secret \
+             -s {{ varnish_storage_backend }},{{ varnish_storage_size }}"

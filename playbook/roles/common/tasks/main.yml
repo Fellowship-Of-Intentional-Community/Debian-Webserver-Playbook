@@ -23,3 +23,7 @@
 - name: Ensure PHP-FPM is Correctly Configured
   include: php.yml
   tags: php
+
+- name: Ensure Varnish is Correctly Configured
+  include: varnish.yml
+  tags: varnish
