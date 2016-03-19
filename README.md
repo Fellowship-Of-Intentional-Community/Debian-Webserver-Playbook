@@ -83,6 +83,12 @@ and forward requests to Nginx(which listens on the internal interface). The
 Varnish VCL is customized for caching Wordpress sites & skips processing of the
 Adminer subdomain.
 
+Finally, we setup our [Wordpress][wordpress] Production & Staging sites. The
+code for our Production site is sourced from a private git repository. Scripts
+are installed into the root users home directory, an image optimizing script
+and a database cleaning script for cron, and a staging creation script for
+creating a staging site from the current production site. An initial staging
+site is created if one is not already present(use Fabric to refresh it).
 
 
 [ansible]: https://www.ansible.com/

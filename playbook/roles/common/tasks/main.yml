@@ -31,3 +31,7 @@
 - name: Ensure Varnish is Correctly Configured
   include: varnish.yml
   tags: varnish, web
+
+- name: Ensure the Wordpress Sites are Correctly Configured
+  include: wordpress.yml
+  tags: wordpress, web

@@ -1,0 +1,69 @@
+---
+
+- name: Ensure the Default Debian/Nginx Web Page Does Not Exist
+  file: path=/var/www/html/index.nginx-debian.html state=absent
+  become: yes
+
+- name: Ensure the Nginx User's SSH Directory Exists
+  file: path=/var/www/.ssh state=directory owner=www-data group=www-data
+        mode=0700
+  become: yes
+
+- name: Ensure the Nginx User has the Correct SSH Key
+  copy: content="{{ vaulted_git_ssh_key }}" owner=www-data group=www-data
+        dest="/var/www/.ssh/{{ vaulted_git_ssh_key_file }}" mode=0600
+  become: yes
+
+- name: Ensure the Production Repository is Up to Date
+  git: repo="{{ vaulted_git_repository }}" dest=/var/www/html/
+       accept_hostkey=yes force=yes
+  become: yes
+  become_user: www-data
+
+- name: Ensure the Production & Staging Websites Are Properly Configured
+  template: src=wordpress.settings.php.j2 owner=www-data group=www-data
+            dest="/var/www/{{ item.dir }}/local_settings.php" backup=yes
+  with_items:
+    - { dir: 'html',
+        database: 'production',
+        database_password: "{{ vaulted_mysql_production_password }}" }
+    - { dir: "staging/html",
+        database: 'staging',
+        database_password: "{{ vaulted_mysql_staging_password }}" }
+  become: yes
+
+- name: Ensure the root User's Script Directory Exists
+  file: path=/root/bin state=directory
+  become: yes
+
+- name: Ensure the Wordpress Image Optimizing Script is Installed
+  copy: src=optimize_images.sh dest=/root/bin/optimize_images.sh backup=yes
+        mode=0700
+  become: yes
+
+- name: Ensure Image Optimizing Programs are Installed
+  apt: name="{{ item }}"
+  with_items: ['libjpeg-turbo-progs', 'optipng']
+  become: yes
+
+- name: Ensure the Wordpress Database Optimizing & Staging Creation Scripts are Installed
+  template: src="{{ item }}.j2" dest="/root/bin/{{ item }}" backup=yes mode=0700
+  with_items:
+    - "optimize_database.sh"
+    - "make_staging.sh"
+  become: yes
+
+- name: Ensure the Image & Database Optimization Scripts are Run by Cron
+  cron: name="{{ item.name }}" special_time="{{ item.time }}" job="{{ item.job }}"
+  with_items:
+    - { name: "Optimize Production Images",
+        time: "weekly",
+        job: "bash /root/bin/optimize_images.sh > /dev/null" }
+    - { name: "Optimize Production Database",
+        time: "daily",
+        job: "bash /root/bin/optimize_database.sh > /dev/null" }
+  become: yes
+
+- name: Ensure the Wordpress Staging Site's Files Exist
+  command: /root/bin/make_staging.sh creates=/var/www/staging/html/index.php
+  become: yes

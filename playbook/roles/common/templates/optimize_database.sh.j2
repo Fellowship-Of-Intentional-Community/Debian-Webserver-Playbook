@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Clean up & optimize our Production WordPress database
+WP_DATABASE="production"
+WP_PREFIX="{{ wordpress_database_prefix }}"
+
+# Start by Repairing
+mysqlcheck --auto-repair ${WP_DATABASE}
+
+mysql ${WP_DATABASE} <<SQL
+    # Remove Spam & Trash Comments
+    DELETE FROM ${WP_PREFIX}comments
+        WHERE (comment_approved = 'spam' OR comment_approved = 'trash');
+
+    # Remove Orphaned Comment Metas & the Akismet Validation Log
+    DELETE FROM ${WP_PREFIX}commentmeta
+        WHERE comment_id NOT IN (SELECT comment_id FROM ${WP_PREFIX}comments);
+    DELETE FROM ${WP_PREFIX}commentmeta
+        WHERE meta_key LIKE '%akismet%';
+
+
+    # Remove Post Revisions & Auto-Drafts Older than 15 Days
+    DELETE FROM ${WP_PREFIX}posts
+        WHERE (post_type = 'revision' OR post_type = 'auto-draft') AND
+              post_modified < DATE_SUB(NOW(), INTERVAL 15 DAY);
+
+    # Remove Orphaned Post Metas
+    DELETE ${WP_PREFIX}postmeta FROM ${WP_PREFIX}postmeta
+        LEFT JOIN ${WP_PREFIX}posts ON ${WP_PREFIX}postmeta.post_id = ${WP_PREFIX}posts.ID
+        WHERE ${WP_PREFIX}posts.ID IS NULL;
+
+    # Remove Orphaned User Metas
+    DELETE ${WP_PREFIX}usermeta FROM ${WP_PREFIX}usermeta
+        LEFT JOIN ${WP_PREFIX}users ON ${WP_PREFIX}usermeta.user_id = ${WP_PREFIX}users.ID
+        WHERE ${WP_PREFIX}users.ID IS NULL;
+
+
+    # Remove Unused Tags
+    DELETE FROM ${WP_PREFIX}terms
+        WHERE term_id IN (SELECT term_id FROM ${WP_PREFIX}term_taxonomy WHERE count = 0);
+    DELETE FROM ${WP_PREFIX}term_taxonomy
+        WHERE term_id NOT IN (SELECT term_id FROM ${WP_PREFIX}terms);
+    DELETE FROM ${WP_PREFIX}term_relationships
+        WHERE term_taxonomy_id NOT IN (SELECT term_taxonomy_id FROM ${WP_PREFIX}term_taxonomy);
+
+
+    # Remove All Transients
+    DELETE FROM ${WP_PREFIX}options WHERE option_name LIKE '%\_transient\_%';
+SQL
+
+# Optimize all tables
+mysqloptimize ${WP_DATABASE}

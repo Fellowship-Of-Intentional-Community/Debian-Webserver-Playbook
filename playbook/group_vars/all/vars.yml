@@ -52,3 +52,5 @@ varnish_storage_backend: 'malloc'
 varnish_ttl: 120
 varnish_connection_timeout: '600s'
 varnish_max_connections: 800
+
+wordpress_database_prefix: "3uOgy46w_"

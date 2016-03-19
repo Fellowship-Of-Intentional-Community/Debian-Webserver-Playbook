@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Create a fresh staging site by cloning production
+STAGING_URL="staging.{{ website_hostname }}"
+STAGING_FILES="/var/www/staging/html"
+STAGING_DB="staging"
+STAGING_DB_PASSWORD="{{ vaulted_mysql_staging_password }}"
+
+PRODUCTION_URL="webvps.{{ website_hostname }}"
+PRODUCTION_FILES="/var/www/html"
+PRODUCTION_DB="production"
+
+echo 'Creating Temporary Storage Space...'
+TEMP_DIR=$(mktemp -d)
+
+
+echo 'Dumping Production Database...'
+PRODUCTION_DB_DUMP="${TEMP_DIR}/production.sql"
+mysqldump "${PRODUCTION_DB}" -p{{ vaulted_mysql_root_password }} > "${PRODUCTION_DB_DUMP}"
+
+
+echo 'Removing Staging Files...'
+rm -rf "${STAGING_FILES}"/*
+
+
+echo 'Copying Production Files to Staging...'
+cp -a "${PRODUCTION_FILES}"/* "${STAGING_FILES}/"
+
+
+echo 'Hiding Staging from Robots...'
+echo -e 'User-agent: *\nDisallow: /' > "${STAGING_FILES}/robots.txt"
+
+
+echo 'Configuring Staging Site...'
+STAGING_WP_CONFIG="${STAGING_FILES}/wp-config.php"
+STAGING_LOCAL_SETTINGS="${STAGING_FILES}/local_settings.php"
+sed -i "s/${PRODUCTION_DB}/${STAGING_DB}/" "${STAGING_LOCAL_SETTINGS}"
+sed -i "s/\(DB_PASSWORD',\).*$/\1 '${STAGING_DB_PASSWORD}' );/" "${STAGING_LOCAL_SETTINGS}"
+
+
+echo 'Enabling Debug Mode...'
+sed -i "3idefine( 'WP_DEBUG', true );" "${STAGING_WP_CONFIG}"
+sed -i "4idefine( 'WP_DEBUG_LOG', true );" "${STAGING_WP_CONFIG}"
+sed -i "5idefine( 'WP_DEBUG_DISPLAY', true );" "${STAGING_WP_CONFIG}"
+
+
+echo 'Disabling Emails...'
+sed -i "6ifunction wp_mail() {};" "${STAGING_WP_CONFIG}"
+
+
+echo 'Recreating Staging Database...'
+mysql "${STAGING_DB}" -p{{ vaulted_mysql_root_password }} < "${PRODUCTION_DB_DUMP}"
+
+
+echo 'Configuring Staging Database...'
+mysql "${STAGING_DB}" -p{{ vaulted_mysql_root_password }} <<SQL
+UPDATE 3uOgy46w_options
+SET option_value = REPLACE (option_value, '${PRODUCTION_URL}', '${STAGING_URL}');
+
+UPDATE 3uOgy46w_posts
+SET guid = REPLACE (guid, '${PRODUCTION_URL}', '${STAGING_URL}');
+
+UPDATE 3uOgy46w_posts
+SET post_content = REPLACE (post_content, '${PRODUCTION_URL}', '${STAGING_URL}');
+
+UPDATE 3uOgy46w_postmeta
+SET meta_value = REPLACE (meta_value, '${PRODUCTION_URL}', '${STAGING_URL}');
+SQL
+
+
+echo 'Disabling AWPCP Email Notifications...'
+# AWPCP manages to send out emails even with the wp_mail function disabled
+php <<PHP
+<?php
+require_once("${STAGING_FILES}/wp-load.php");
+\$awpcp_options = get_option('awpcp-options');
+\$awpcp_options['send-user-ad-posted-notification'] = 0;
+\$awpcp_options['send-ad-enabled-email'] = 0;
+\$awpcp_options['sent-ad-renew-email'] = 0;
+\$awpcp_options['notifyofadexpiring'] = 0;
+update_option('awpcp-options', \$awpcp_options, true);
+?>
+PHP
+
+
+echo 'Cleaning Up Temporary Files...'
+rm -rf "${TEMP_DIR}"
