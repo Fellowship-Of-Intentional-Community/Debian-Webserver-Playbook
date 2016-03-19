@@ -12,18 +12,22 @@
   include: security.yml
   tags: security
 
+- name: Ensure SSMTP is Correctly Configured
+  include: ssmtp.yml
+  tags: ssmtp, mail
+
 - name: Ensure MySQL is Correctly Configured
   include: mysql.yml
-  tags: mysql
+  tags: mysql, web
 
 - name: Ensure Nginx is Correctly Configured
   include: nginx.yml
-  tags: nginx
+  tags: nginx, web
 
 - name: Ensure PHP-FPM is Correctly Configured
   include: php.yml
-  tags: php
+  tags: php, web
 
 - name: Ensure Varnish is Correctly Configured
   include: varnish.yml
-  tags: varnish
+  tags: varnish, web

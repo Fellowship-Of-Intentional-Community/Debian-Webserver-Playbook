@@ -1,0 +1,9 @@
+---
+
+- name: Ensure SSMTP is Installed
+  apt: name=ssmtp
+  become: yes
+
+- name: Ensure SSMTP is Correctly Configured
+  template: src=ssmtp.conf.j2 dest=/etc/ssmtp/ssmtp.conf backup=yes
+  become: yes

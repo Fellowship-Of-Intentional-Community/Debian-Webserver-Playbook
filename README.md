@@ -62,6 +62,9 @@ Then an administration user is created, and the security configuration from
 [Linode's Security Guide][linode-secure] is applied, including Unattended
 Upgrades, SSH Hardening, Fail2Ban, & an IPTables ruleset.
 
+Outbound mail is sent using [SSMTP][ssmtp], which is configured to relay mail
+to an external SMTP server.
+
 We then install [MariaDB][mariadb] and create databases and users for
 `production` & `staging`. MariaDB is then secured using [Digital Ocean's
 Guide][d-o-mysql].
@@ -87,6 +90,7 @@ Adminer subdomain.
 
 [linode-starting]: https://www.linode.com/docs/getting-started
 [linode-secure]: https://www.linode.com/docs/security/securing-your-server/
+[ssmtp]: https://wiki.debian.org/sSMTP
 [mariadb]: https://mariadb.org/
 [d-o-mysql]: https://www.digitalocean.com/community/tutorials/how-to-secure-mysql-and-mariadb-databases-in-a-linux-vps
 [nginx]: https://www.nginx.com/

@@ -17,6 +17,13 @@ website_hostname: "ic.org"
 production_servername: "webvps"
 staging_servername: "staging"
 
+ssmtp_host: 'smtp.gmail.com'
+ssmtp_port: 25
+ssmtp_user: 'no-reply@{{ website_hostname }}'
+ssmtp_use_tls: 'YES'
+ssmtp_starttls: '{{ ssmtp_use_tls }}'
+ssmtp_root_email: 'web.manager@{{ website_hostname }}'
+
 nginx_http_port: 80
 nginx_https_port: 443
 
