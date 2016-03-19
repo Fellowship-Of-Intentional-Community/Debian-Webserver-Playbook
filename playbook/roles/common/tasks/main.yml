@@ -19,3 +19,7 @@
 - name: Ensure Nginx is Correctly Configured
   include: nginx.yml
   tags: nginx
+
+- name: Ensure PHP-FPM is Correctly Configured
+  include: php.yml
+  tags: php

@@ -13,17 +13,22 @@
   template: src="{{ item.template }}.nginx.conf.j2" backup=yes
             dest="/etc/nginx/sites-available/{{ item.sitename }}.conf"
   with_items:
-    - { template: 'staging',
-        sitename: '{{ staging_servername }}.{{ website_hostname }}' }
     - { template: 'production',
         sitename: 'default' }
+    - { template: 'staging',
+        sitename: '{{ staging_servername }}.{{ website_hostname }}' }
+    - { template: 'adminer',
+        sitename: '{{ adminer_subdomain }}.{{ website_hostname }}' }
   notify: restart nginx
   become: yes
 
 - name: Ensure the Nginx staging & production Sites are Enabled
-  file: state=link path="/etc/nginx/sites-enabled/{{ item }}" force=yes
-        src="/etc/nginx/sites-available/{{ item }}"
-  with_items: ['{{ staging_servername }}.{{ website_hostname }}', 'default']
+  file: state=link path="/etc/nginx/sites-enabled/{{ item }}.conf" force=yes
+        src="/etc/nginx/sites-available/{{ item }}.conf"
+  with_items:
+    - 'default'
+    - '{{ staging_servername }}.{{ website_hostname }}'
+    - '{{ adminer_subdomain }}.{{ website_hostname }}'
   notify: restart nginx
   become: yes
 
@@ -34,11 +39,38 @@
     - /var/www/logs
     - /var/www/staging/html
     - /var/www/staging/logs
+    - /var/www/adminer/html
+    - /var/www/adminer/logs
   notify: restart nginx
   become: yes
 
 - name: Ensure the Website Directories Have the Correct Permissions
   file: state=directory owner=www-data group=www-data path="/var/www/{{ item }}"
-  with_items: ['html', 'staging/html']
+  with_items: ['html', 'staging/html', 'adminer/html']
+  notify: restart nginx
+  become: yes
+
+- name: Ensure Adminer is Up to Date
+  get_url: url="{{ item.url }}" dest="/var/www/adminer/html/{{ item.name }}"
+           checksum="{{ item.checksum }}" mode=0644 backup=yes
+  with_items:
+    - { url: "https://www.adminer.org/static/download/{{ adminer_version }}/adminer-{{ adminer_version }}-mysql-en.php",
+        name: "index.php",
+        checksum: "{{ adminer_checksum }}" }
+    - { url: "https://raw.githubusercontent.com/vrana/adminer/master/designs/{{ adminer_theme }}/adminer.css",
+        name: "adminer.css",
+        checksum: "{{ adminer_theme_checksum }}"}
+  become: yes
+
+- name: Ensure the SSL Key Folder Exists
+  file: state=directory path="/etc/ssl/private/{{ website_hostname }}"
+  become: yes
+
+- name: Ensure the Self-Signed Wildcard SSL Key Exists
+  command: openssl req -new -x509 -sha256 -days 3652 -nodes -newkey rsa:4096
+           -out "/etc/ssl/private/{{ website_hostname }}/wildcard.pem"
+           -subj '/C=US/ST=Virginia/L=Virginia/O=FIC/OU=FIC IT/CN=*.{{ website_hostname }}'
+           -keyout "/etc/ssl/private/{{ website_hostname }}/wildcard.key"
+           creates="/etc/ssl/private/{{ website_hostname }}/wildcard.pem"
   notify: restart nginx
   become: yes

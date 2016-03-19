@@ -63,8 +63,11 @@ We then install MariaDB and create databases and users for `production` &
 `staging`. MariaDB is then secured using [Digital Ocean's Guide][d-o-mysql].
 
 Nginx is then installed & configured using [Linode's LEMP Server
-Guide][linode-lemp]. Production & Staging sites proxying PHP-FPM are added to
-Nginx.
+Guide][linode-lemp]. [Adminer][adminer], Production & Staging sites proxying
+PHP-FPM are added to Nginx.
+
+PHP-FPM is installed & was configured using [Digital Ocean's LEMP Stack
+Guide][d-o-lemp].
 
 
 
@@ -75,3 +78,5 @@ Nginx.
 [linode-secure]: https://www.linode.com/docs/security/securing-your-server/
 [d-o-mysql]: https://www.digitalocean.com/community/tutorials/how-to-secure-mysql-and-mariadb-databases-in-a-linux-vps
 [linode-lemp]: https://www.linode.com/docs/websites/lemp/lemp-server-on-debian-8
+[adminer]: https://www.adminer.org/
+[d-o-lemp]: https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-on-debian-7

@@ -1,0 +1,41 @@
+server {
+    listen {{ nginx_https_port }} ssl;
+
+    server_name {{ adminer_subdomain }}.{{ website_hostname }};
+    root /var/www/adminer/html;
+
+    index index.php;
+
+    access_log off;
+    error_log /var/www/adminer/logs/error.log;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    # pass PHP scripts to FastCGI server
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        include fastcgi.conf;
+    }
+
+    # Directives to send expires headers and turn off 404 error logging.
+    location ~* \.(jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|tar|js|css)$ {
+        expires max;
+        log_not_found off;
+    }
+
+}
+
+# Redirect all HTTP requests to HTTPS
+server {
+    listen 127.0.0.1:{{ nginx_http_port }};
+    server_name {{ adminer_subdomain }}.{{ website_hostname }};
+    location / {
+        rewrite ^ https://$server_name$request_uri permanent;
+    }
+}

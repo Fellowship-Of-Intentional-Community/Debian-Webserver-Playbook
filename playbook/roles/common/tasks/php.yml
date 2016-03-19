@@ -1,0 +1,35 @@
+---
+
+- name: Ensure PHP-FPM is Installed
+  apt: name="{{ item }}"
+  with_items: 
+    - 'php5-fpm'
+    - 'php5-mysql'
+    - 'php5-gd'
+    - 'php5-curl'
+    - 'php5-apcu'
+    - 'libjconv-dev'
+  become: yes
+
+- name: Ensure PHP-FPM is Correctly Configured
+  ini_file: dest=/etc/php5/fpm/php.ini backup=yes section="PHP"
+            option="{{ item.option }}" value="{{ item.value }}"
+  with_items:
+    - { option: "cgi.fix_pathinfo", value: 0 }
+    - { option: "zlib.output_compression", value: "Off" }
+    - { option: "max_execution_time", value: "{{ php_max_execution_time }}" }
+    - { option: "max_input_vars", value: "{{ php_max_input_vars }}" }
+  notify: restart php-fpm
+  become: yes
+
+- name: Ensure the PHP-FPM Pool is Correctly Configured
+  ini_file: dest=/etc/php5/fpm/pool.d/www.conf backup=yes section="www"
+            option="{{ item.option }}" value="{{ item.value }}"
+  with_items:
+    - { option: "listen", value: '/var/run/php5-fpm.sock' }
+    - { option: "pm", value: 'static' }
+    - { option: "pm.max_children", value: '{{ php_max_children }}' }
+    - { option: "pm.max_requests", value: '{{ php_max_request_per_child }}' }
+    - { option: "request_terminate_timeout", value: '{{ php_request_terminate_timeout }}' }
+  notify: restart php-fpm
+  become: yes
