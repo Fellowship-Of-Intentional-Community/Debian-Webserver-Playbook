@@ -4,9 +4,9 @@ WP_DATABASE="production"
 WP_PREFIX="{{ wordpress_database_prefix }}"
 
 # Start by Repairing
-mysqlcheck --auto-repair ${WP_DATABASE}
+mysqlcheck --auto-repair ${WP_DATABASE} -p{{ vaulted_mysql_root_password }}
 
-mysql ${WP_DATABASE} <<SQL
+mysql ${WP_DATABASE} -p{{ vaulted_mysql_root_password }} <<SQL
     # Remove Spam & Trash Comments
     DELETE FROM ${WP_PREFIX}comments
         WHERE (comment_approved = 'spam' OR comment_approved = 'trash');
@@ -48,4 +48,4 @@ mysql ${WP_DATABASE} <<SQL
 SQL
 
 # Optimize all tables
-mysqloptimize ${WP_DATABASE}
+mysqloptimize ${WP_DATABASE} -p{{ vaulted_mysql_root_password }}
