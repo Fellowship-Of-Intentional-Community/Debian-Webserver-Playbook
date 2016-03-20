@@ -5,6 +5,11 @@
   with_items: ['mariadb-server', 'python-mysqldb']
   become: yes
 
+- name: Ensure the MariaDB root User has a Password Set
+  mysql_user: user=root password="{{ vaulted_mysql_root_password }}" host="localhost"
+  ignore_errors: yes
+  become: yes
+
 - name: Ensure the MariaDB root User is Correctly Configured
   mysql_user: user=root password="{{ vaulted_mysql_root_password }}" host="{{ item }}"
               login_user=root login_password="{{ vaulted_mysql_root_password }}"

@@ -18,7 +18,7 @@
   become: yes
 
 - name: Ensure Varnish is Enabled
-  service: name="{{ item }}" enabled=yes
+  service: name="{{ item }}" enabled=yes state=started
   with_items: ['varnish', 'varnishlog', 'varnishncsa']
   become: yes
 

@@ -11,7 +11,7 @@
 
 - name: Ensure the Nginx staging & production Sites are Correctly Configured
   template: src="{{ item.template }}.nginx.conf.j2" backup=yes
-            dest="/etc/nginx/sites-available/{{ item.sitename }}.conf"
+            dest="/etc/nginx/sites-available/{{ item.sitename }}"
   with_items:
     - { template: 'production',
         sitename: 'default' }
@@ -23,8 +23,8 @@
   become: yes
 
 - name: Ensure the Nginx staging & production Sites are Enabled
-  file: state=link path="/etc/nginx/sites-enabled/{{ item }}.conf" force=yes
-        src="/etc/nginx/sites-available/{{ item }}.conf"
+  file: state=link path="/etc/nginx/sites-enabled/{{ item }}" force=yes
+        src="/etc/nginx/sites-available/{{ item }}"
   with_items:
     - 'default'
     - '{{ staging_servername }}.{{ website_hostname }}'
