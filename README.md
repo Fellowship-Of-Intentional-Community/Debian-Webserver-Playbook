@@ -27,7 +27,7 @@ mkvirtualenv -a "$(pwd)" -i fabric -i ansible fic-vps
 
 ## Automated Setup
 
-Spin up a VM and install Debian 8 with just a SSH server, `python`, and
+Spin up a VM and install Debian 8 with just a SSH server, `sudo`, `python`, and
 `aptitude`.
 
 Now you can either add the IP address to the `fic-servers` inventory file &
@@ -49,6 +49,19 @@ cd playbook/
 ansible-playbook fic.yml
 # Or to your test server
 ansible-playbook fic.yml -i test-servers
+```
+
+
+## Automated Maintenance
+
+The `fabfile.py` contains Fabric commands you can use to administer the server.
+Run `fab -l` to see the provided commands. There is a `production` role and a
+`test` role. You can run commands for specific roles using the `-R` flag, or
+specify a host or list of hosts using the `-H` flag:
+
+```bash
+fab -R test make_staging
+fab -H mytest.yourdomain.com make_staging
 ```
 
 
