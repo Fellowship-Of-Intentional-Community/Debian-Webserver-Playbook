@@ -47,13 +47,12 @@
         pass: "{{ vaulted_mysql_staging_password }}" }
 
 - name: Ensure MariaDB is Configured for Security
-  ini_file: dest=/etc/mysql/my.cnf backup=yes section="{{ item.section }}"
+  ini_file: dest=/etc/mysql/my.cnf backup=yes section="mysqld"
             option="{{ item.option }}" value="{{ item.value }}"
   with_items:
-    - { section: mysqld,
-        option: local-infile,
+    - { option: local-infile,
         value: 0 }
-    - { section: mysqld,
-        option: bind-address,
+    - { option: bind-address,
         value: 127.0.0.1 }
+  notify: restart mariadb
   become: yes

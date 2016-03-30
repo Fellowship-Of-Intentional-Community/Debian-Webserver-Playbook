@@ -12,6 +12,10 @@
   service: name=netfilter-persistent state=restarted
   become: yes
 
+- name: restart mariadb
+  service: name=mysql state=restarted
+  become: yes
+
 - name: restart nginx
   service: name=nginx state=restarted
   become: yes
