@@ -1,1 +1,1 @@
-ficwww          ansible_host=ficwww.ic.org
+ficwww          ansible_host=ficwww.ic.org ansible_port=8282
