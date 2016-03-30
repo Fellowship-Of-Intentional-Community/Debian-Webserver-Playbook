@@ -33,6 +33,13 @@ adminer_theme: "nette"
 adminer_checksum: "sha256:bbe24e287f42cb3d1f272ebd890a8a4f81e4e675f88f726ae5f80347181e3fd6"
 adminer_theme_checksum: "sha256:632965d2ca4440d73a27c47ac208da30e57ac018395411bcdd8528d108a56f2a"
 
+mysql_key_buffer: "80M"
+mysql_query_cache: "1000M"
+mysql_innodb_buffer_pool_size: "1000M"
+mysql_tmp_table_size: "256M"
+mysql_max_heap_size: "256M"
+mysql_table_open_cache: "800"
+
 php_max_execution_time: 300
 php_max_input_vars: 5000
 

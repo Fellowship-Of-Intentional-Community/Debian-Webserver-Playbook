@@ -56,3 +56,22 @@
         value: 127.0.0.1 }
   notify: restart mariadb
   become: yes
+
+- name: Ensure MariaDB is Configured for Performance
+  ini_file: dest=/etc/mysql/my.cnf backup=yes section="mysqld"
+            option="{{ item.option }}" value="{{ item.value }}"
+  with_items:
+    - { option: key_buffer,
+        value: "{{ mysql_key_buffer }}" }
+    - { option: query_cache_limit,
+        value: "{{ mysql_query_cache }}" }
+    - { option: innodb_buffer_pool_size,
+        value: "{{ mysql_innodb_buffer_pool_size }}" }
+    - { option: tmp_table_size,
+        value: "{{ mysql_tmp_table_size }}" }
+    - { option: max_heap_table_size,
+        value: "{{ mysql_max_heap_size }}" }
+    - { option: table_open_cache,
+        value: "{{ mysql_table_open_cache }}" }
+  notify: restart mariadb
+  become: yes
