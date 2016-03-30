@@ -15,11 +15,11 @@
   become: yes
 
 - name: Ensure the Public IP is Correctly Routed
-  lineinfile: dest=/etc/hosts regexp=".*{{ ansible_hostname }}"
+  lineinfile: dest=/etc/hosts regexp=".*{{ ansible_hostname }}" backup=yes
               line="{{ public_ip }}  {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
   become: yes
 
 - name: Ensure the Timezone is Correctly Set
-  copy: dest=/etc/timezone content="{{ timezone }}"
-        owner=root group=root mode=0644 backup=yes
+  copy: dest=/etc/timezone content="{{ timezone }}" backup=yes
+        owner=root group=root mode=0644
   become: yes
