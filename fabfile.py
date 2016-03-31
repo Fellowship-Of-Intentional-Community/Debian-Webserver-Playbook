@@ -3,10 +3,7 @@ from fabric.api import sudo, env
 from fabric.contrib.console import confirm
 
 
-env.roledefs = {
-    'production': ['ficwww.ic.org:8282'],
-    'test': ['192.168.1.49:8282'],
-}
+env.hosts = ['ficwww.ic.org:8282']
 
 
 def make_staging():
@@ -18,6 +15,10 @@ def make_staging():
     '''
     if confirm(warning_text):
         sudo('bash /root/bin/make_staging.sh')
+
+
+def backup_wordpress():
+    sudo('bash /root/bin/backup_wordpress.sh manual')
 
 
 def safe_upgrade():
