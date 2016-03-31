@@ -14,7 +14,7 @@ fail2ban_whitelist:
   - '104.245.228.18'
 
 website_hostname: "ic.org"
-production_servername: "webvps"
+production_servername: "www"
 staging_servername: "staging"
 
 ssmtp_host: 'smtp.gmail.com'
