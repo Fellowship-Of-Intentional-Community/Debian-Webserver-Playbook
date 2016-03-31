@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Daily Wordpress Files & Database Backup Script
+
+# The backup sub-directory to save to('automated' or 'manual').
+SUB_DIR="$1"
+
+
+# The source directory:
+SRC="/var/www/html/"
+# The backup directory
+BAK="{{ backup_directory }}/$SUB_DIR/"
+AUTO_BAK="{{ backup_directory }}/automated/"
+
+# Today
+DAY0=$(date -Iminutes)
+# Most Recent Automated Backup Date
+LAST=$(ls -lrt "$AUTO_BAK" | tail -1 | awk '{print$9}')
+
+# Target directory:
+TRG="$BAK/$DAY0"
+# Link Destination location:
+LNK="$AUTO_BAK/$LAST"
+
+# Rsync Options
+OPT="-aqhz --delete --link-dest=$LNK"
+
+# Only backup if all previous runs are finished
+if [ -z "$(ps -ef | grep "rsync.*$SRC" | grep -v grep)" ]; then
+
+    echo "Backing up files..."
+    rsync $OPT \
+        $SRC \
+        $TRG
+
+    echo "Backing up database..."
+    mysqldump -p{{ vaulted_mysql_production_password }} production | gzip -9 > "$TRG/mysql.sql.gz"
+
+    # Update Modified Time on new Directory
+    if [ -d "$TRG" ]; then
+        touch $TRG
+    fi
+else
+    echo "Backup already in progress! Aborting..."
+fi
+
+# Remove Backups Older than 31 days:
+DAY31=$(date -I -d "31 days ago")
+OLD="$BAK/$DAY31*"
+
+# Only if they exist
+if [ -d $OLD ]; then
+    rm -R $OLD
+fi

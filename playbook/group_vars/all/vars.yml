@@ -4,6 +4,7 @@ debian_version: 'jessie'
 timezone: 'America/New_York'
 
 default_user: 'prikhi'
+backup_directory: '/var/backups/wordpress'
 
 ssh_port: '8282'
 ssh_keys:

@@ -46,14 +46,20 @@
   with_items: ['libjpeg-turbo-progs', 'optipng']
   become: yes
 
-- name: Ensure the Wordpress Database Optimizing & Staging Creation Scripts are Installed
+- name: Ensure the Backup Directories Exist
+  file: state=directory path="{{ backup_directory }}/{{ item }}"
+  with_items: ['automated', 'manual']
+  become: yes
+
+- name: Ensure the Wordpress Optimizing, Staging, & Backup Scripts are Installed
   template: src="{{ item }}.j2" dest="/root/bin/{{ item }}" backup=yes mode=0700
   with_items:
     - "optimize_database.sh"
     - "make_staging.sh"
+    - "backup_wordpress.sh"
   become: yes
 
-- name: Ensure the Image & Database Optimization Scripts are Run by Cron
+- name: Ensure the Optimization & Backup Scripts are Run by Cron
   cron: name="{{ item.name }}" special_time="{{ item.time }}" job="{{ item.job }}"
   with_items:
     - { name: "Optimize Production Images",
@@ -62,6 +68,9 @@
     - { name: "Optimize Production Database",
         time: "daily",
         job: "bash /root/bin/optimize_database.sh > /dev/null" }
+    - { name: "Backup the Production Files & Database",
+        time: "daily",
+        job: "bash /root/bin/backup_wordpress.sh automated > /dev/null" }
   become: yes
 
 - name: Ensure the Wordpress Staging Site's Files Exist
