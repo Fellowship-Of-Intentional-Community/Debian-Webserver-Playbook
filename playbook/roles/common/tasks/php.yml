@@ -33,3 +33,10 @@
     - { option: "request_terminate_timeout", value: '{{ php_request_terminate_timeout }}' }
   notify: restart php-fpm
   become: yes
+
+- name: Ensure the PHP APCU Cache is Correctly Configured
+  ini_file: dest=/etc/php5/mods-available/apcu.ini backup=yes section=""
+            option="apc.{{ item.key }}" value="{{ item.value }}"
+  with_dict: "{{ php_apc }}"
+  notify: restart php-fpm
+  become: yes

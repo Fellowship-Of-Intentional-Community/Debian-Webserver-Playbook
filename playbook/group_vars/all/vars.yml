@@ -47,6 +47,19 @@ php_max_children: 16
 php_max_request_per_child: 1024
 php_request_terminate_timeout: '300s'
 
+php_apc:
+  shm_segments: 1
+  shm_size: 512M
+  num_files_hint: 7000
+  user_entries_hint: 4096
+  ttl: 7200
+  user_ttl: 7200
+  gc_ttl: 3600
+  stat: 1
+  include_once_override: 0
+  file_update_protection: 2
+  max_file_size: 16M
+
 varnish_port: 80
 varnish_repo_version: '4.1'
 varnish_file_limit: 131072
