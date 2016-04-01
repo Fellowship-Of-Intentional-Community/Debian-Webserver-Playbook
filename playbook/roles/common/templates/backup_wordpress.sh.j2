@@ -33,12 +33,14 @@ if [ -z "$(ps -ef | grep "rsync.*$SRC" | grep -v grep)" ]; then
         $TRG
 
     echo "Backing up database..."
-    mysqldump -p{{ vaulted_mysql_production_password }} production | gzip -9 > "$TRG/mysql.sql.gz"
+    mysqldump -u production -p{{ vaulted_mysql_production_password }} production | gzip -9 > "$TRG/mysql.sql.gz"
 
     # Update Modified Time on new Directory
     if [ -d "$TRG" ]; then
         touch $TRG
     fi
+
+    echo "Backup completed!"
 else
     echo "Backup already in progress! Aborting..."
 fi
