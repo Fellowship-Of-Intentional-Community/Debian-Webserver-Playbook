@@ -33,6 +33,7 @@ if [ -z "$(ps -ef | grep "rsync.*$SRC" | grep -v grep)" ]; then
         $TRG
 
     echo "Backing up database..."
+    mysqlrepair -u production -p{{ vaulted_mysql_production_password }} production > /dev/null
     mysqldump -u production -p{{ vaulted_mysql_production_password }} production | gzip -9 > "$TRG/mysql.sql.gz"
 
     # Update Modified Time on new Directory
