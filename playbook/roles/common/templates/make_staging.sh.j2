@@ -5,7 +5,7 @@ STAGING_FILES="/var/www/staging/html"
 STAGING_DB="staging"
 STAGING_DB_PASSWORD="{{ vaulted_mysql_staging_password }}"
 
-PRODUCTION_URL="webvps.{{ website_hostname }}"
+PRODUCTION_URL="{{ production_servername }}.{{ website_hostname }}"
 PRODUCTION_FILES="/var/www/html"
 PRODUCTION_DB="production"
 
@@ -14,6 +14,7 @@ TEMP_DIR=$(mktemp -d)
 
 
 echo 'Dumping Production Database...'
+mysqlrepair "${PRODUCTION_DB}" -p{{ vaulted_mysql_root_password }} > /dev/null
 PRODUCTION_DB_DUMP="${TEMP_DIR}/production.sql"
 mysqldump "${PRODUCTION_DB}" -p{{ vaulted_mysql_root_password }} > "${PRODUCTION_DB_DUMP}"
 
