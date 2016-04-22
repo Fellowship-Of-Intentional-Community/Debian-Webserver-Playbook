@@ -22,7 +22,7 @@ acl purge {
 sub vcl_recv {
     # Ignore requests to certain subdomains
     if (req.http.Host == "{{ adminer_subdomain }}.{{ website_hostname }}") {
-        return (pipe);
+        return (pass);
     }
 
     # Normalize the header, remove the port (in case you're testing this on various TCP ports)
@@ -40,7 +40,7 @@ sub vcl_recv {
 
     # Post requests will not be cached
     if (req.http.Authorization || req.method == "POST") {
-        return (pipe);
+        return (pass);
     }
 
     # --- Wordpress specific configuration
@@ -63,10 +63,20 @@ sub vcl_recv {
 
      # Do not cache the WooCommerce pages
     if (req.url ~ "(community-bookstore|cart|my-account|my-fic-account|checkout|addons)") {
-        return (pipe);
+        return (pass);
     }
     if (req.url ~ "(\?add-to-cart=|\?removed_item)") {
-        return (pipe);
+        return (pass);
+    }
+
+    # Do not cache Ad Reply pages
+    if (req.url ~ "reply-to-ad") {
+        return (pass);
+    }
+
+    # Do not cache directory listing add/edit pages
+    if (req.url ~ "directory/(edit|add)-listing") {
+        return (pass);
     }
 
     # Remove the "has_js" cookie
@@ -94,7 +104,7 @@ sub vcl_recv {
 
     # Check the cookies for wordpress-specific items
     if (req.http.cookie ~ "(wordpress_|comment_|woocommerce)") {
-        return (pipe);
+        return (pass);
     }
 
     # Cache the following files extensions
@@ -133,7 +143,7 @@ sub vcl_recv {
 }
 
 sub vcl_pipe {
-    return (pipe);
+    set bereq.http.connection = "close";
 }
 
 sub vcl_pass {
