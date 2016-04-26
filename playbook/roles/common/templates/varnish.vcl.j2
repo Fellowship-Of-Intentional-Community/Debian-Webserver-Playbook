@@ -182,8 +182,8 @@ sub vcl_backend_response {
         unset beresp.http.cookie;
     }
 
-    # Only allow cookies to be set if we're in admin area
-    if (beresp.http.Set-Cookie && bereq.url !~ "^/wp-(login|admin)") {
+    # Only allow cookies to be set if we're in admin or woocommerce areas
+    if (beresp.http.Set-Cookie && bereq.url !~ "^/(wp-login|wp-admin|community-bookstore|cart|checkout)") {
             unset beresp.http.Set-Cookie;
         }
 
