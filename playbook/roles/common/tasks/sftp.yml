@@ -1,0 +1,32 @@
+---
+
+- name: Ensure OpenSSH is Configured to Allow sFTP
+  lineinfile: dest=/etc/ssh/sshd_config backrefs=yes backup=yes
+              regexp='(Subsystem .*)' line='\1 internal-sftp'
+  notify: restart sshd
+  become: yes
+
+- name: Ensure OpenSSH Contains the sFTP Match Group
+  lineinfile: dest=/etc/ssh/sshd_config backup=yes line='Match Group www-data'
+  notify: restart sshd
+  become: yes
+
+- name: Ensure the OpenSSH sFTP Match Group is Correctly Configured
+  lineinfile: dest=/etc/ssh/sshd_config backup=yes
+              insertafter='Match Group www-data' line="\t{{ item }}"
+  with_items:
+    - 'ChrootDirectory /var/www/'
+    - 'X11Forwarding no'
+    - 'AllowTcpForwarding no'
+    - 'ForceCommand internal-sftp'
+  notify: restart sshd
+  become: yes
+
+- name: Ensure the sFTP User is Correctly Configured
+  user: name=sftp group=www-data
+  become: yes
+
+- name: Ensure the sFTP User has Authorized the Expected SSH Keys
+  authorized_key: user=sftp key="{{ item }}"
+  with_items: "{{ sftp_keys }}"
+  become: yes

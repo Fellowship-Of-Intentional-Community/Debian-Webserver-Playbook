@@ -35,3 +35,7 @@
 - name: Ensure the Wordpress Sites are Correctly Configured
   include: wordpress.yml
   tags: wordpress, web
+
+- name: Ensure sFTP is Correctly Configured
+  include: sftp.yml
+  tags: user, sftp
