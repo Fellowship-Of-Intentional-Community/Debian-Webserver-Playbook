@@ -17,3 +17,6 @@ define('AUTH_SALT',        '{{ vaulted_wp_auth_salt }}');
 define('SECURE_AUTH_SALT', '{{ vaulted_wp_secure_auth_salt }}');
 define('LOGGED_IN_SALT',   '{{ vaulted_wp_logged_in_salt }}');
 define('NONCE_SALT',       '{{ vaulted_wp_nonce_salt }}');
+
+/** WP_CRON is run via a cronjob */
+define('DISABLE_WP_CRON', true);

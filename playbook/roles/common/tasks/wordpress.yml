@@ -73,6 +73,12 @@
         job: "bash /root/bin/backup_wordpress.sh automated > /dev/null" }
   become: yes
 
+- name: Ensure Wordpress Cronjobs are Run by Cron
+  cron: name="Run Wordpress Cronjobs" minute="*/5"
+        job="wget -O /dev/null http://127.0.0.1/wp-cron.php > /dev/null 2>&1"
+  become: yes
+
+
 - name: Ensure the Wordpress Staging Site's Files Exist
   command: /root/bin/make_staging.sh creates=/var/www/staging/html/index.php
   become: yes
