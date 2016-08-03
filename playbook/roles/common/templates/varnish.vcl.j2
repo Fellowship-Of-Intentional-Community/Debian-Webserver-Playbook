@@ -21,7 +21,8 @@ acl purge {
 # This function is used when a request is send by a HTTP client (Browser)
 sub vcl_recv {
     # Ignore requests to certain subdomains
-    if (req.http.Host == "{{ adminer_subdomain }}.{{ website_hostname }}") {
+    if (req.http.Host == "{{ adminer_subdomain }}.{{ website_hostname }}" ||
+            req.http.Host == "{{ staging_servername }}.{{ website_hostname }}") {
         return (pass);
     }
 
@@ -56,13 +57,13 @@ sub vcl_recv {
         }
 
 
-    # Did not cache the admin and login pages
-    if (req.url ~ "/wp-(login|admin)") {
+    # Did not cache the admin, login, & cron pages
+    if (req.url ~ "/wp-(login|admin|cron)") {
         return (pass);
     }
 
      # Do not cache the WooCommerce pages
-    if (req.url ~ "(community-bookstore|cart|my-account|my-fic-account|checkout|addons)") {
+    if (req.url ~ "(community-bookstore|community-classifieds|cart|my-account|my-fic-account|checkout|addons)") {
         return (pass);
     }
     if (req.url ~ "(\?add-to-cart=|\?removed_item)") {
@@ -183,9 +184,9 @@ sub vcl_backend_response {
     }
 
     # Only allow cookies to be set if we're in admin or woocommerce areas
-    if (beresp.http.Set-Cookie && bereq.url !~ "^/(wp-login|wp-admin|community-bookstore|cart|checkout)") {
-            unset beresp.http.Set-Cookie;
-        }
+    #if (beresp.http.Set-Cookie && bereq.url !~ "^/(wp-login|wp-admin|community-bookstore|community-classifieds|cart|checkout)") {
+    #    unset beresp.http.Set-Cookie;
+    #}
 
     # don't cache response to posted requests or those with basic auth
     if ( bereq.method == "POST" || bereq.http.Authorization ) {
