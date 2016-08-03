@@ -19,6 +19,8 @@
     - { option: "zlib.output_compression", value: "Off" }
     - { option: "max_execution_time", value: "{{ php_max_execution_time }}" }
     - { option: "max_input_vars", value: "{{ php_max_input_vars }}" }
+    - { option: "upload_max_filesize", value: "{{ php_upload_max_filesize }}" }
+    - { option: "post_max_size", value: "{{ php_upload_max_filesize }}" }
   notify: restart php-fpm
   become: yes
 

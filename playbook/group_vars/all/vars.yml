@@ -46,6 +46,7 @@ mysql_table_open_cache: "800"
 
 php_max_execution_time: 300
 php_max_input_vars: 5000
+php_upload_max_filesize: "50M"
 
 php_max_children: 16
 php_max_request_per_child: 1024
@@ -53,7 +54,7 @@ php_request_terminate_timeout: '300s'
 
 php_apc:
   shm_segments: 1
-  shm_size: 512M
+  shm_size: 768M
   num_files_hint: 7000
   user_entries_hint: 4096
   ttl: 7200
